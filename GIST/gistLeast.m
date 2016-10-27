@@ -84,21 +84,6 @@ function [w,fun,time,iter] = gistLeast(X,y,lambda,theta,varargin)
 %
 % iter: the number of iterative steps 
 %
-% =========================================================================
-%
-% Copyright (C) 2012-2013 Pinghua Gong
-%
-% For any problem, please contact Pinghua Gong via pinghuag@gmail.com
-%
-% Last modified on March 14, 2013.
-%
-% Related papers:
-%
-% [1] Pinghua Gong, Changshui Zhang, Zhaosong Lu, Jianhua Huang, Jieping Ye,
-%     A General Iterative Shrinkage and Thresholding Algorithm for Non-convex
-%     Regularized Optimization Problems. ICML 2013.
-%
-% ========================================================================
 
 if nargin < 4
     error('Too few input parameters!');

@@ -58,7 +58,6 @@ long mymin(double *x, long n)
 			ind = i;
 			temp = x[i];
 		}
-
 	}
 	return ind;
 }
