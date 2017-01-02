@@ -1,4 +1,4 @@
-function [w,fun,time,iter] = gistL2SVM(X,y,lambda,theta,varargin)
+function [w,fun,time,iter,fun_min] = gistL2SVM(X,y,lambda,theta,varargin)
 
 % Generalized Iterative Shrinkage and Thresholding (GIST) with L2 SVM loss
 %
@@ -183,7 +183,7 @@ grad =  -Z'*hinge/n;
 
 fun(1) = 0.5*(hinge'*hinge)/n + funRegC(w,d,lambda,theta,regtype);
 time(1) = 0;
-
+fun_min = fun(1);
 count = 0;
 for iter = 1:maxiter
     tic;
@@ -206,6 +206,9 @@ for iter = 1:maxiter
         end
     end
     time(iter+1) = time(iter) + toc;  
+    if(fun(iter+1) < fun_min)
+        fun_min = fun(iter+1);
+    end
     
     % stopping condition
     if stopcriterion
