@@ -1,4 +1,4 @@
-function [w,fun,time,iter] = gistLeast(X,y,lambda,theta,varargin)
+function [w,fun,time,iter,fun_min] = gistLeast(X,y,lambda,theta,varargin)
 
 % Generalized Iterative Shrinkage and Thresholding (GIST) with Least Squares loss
 %
@@ -84,6 +84,8 @@ function [w,fun,time,iter] = gistLeast(X,y,lambda,theta,varargin)
 %
 % iter: the number of iterative steps 
 %
+fprintf('enter GIST Least %s \n', datestr(datetime));
+
 
 if nargin < 4
     error('Too few input parameters!');
@@ -171,9 +173,10 @@ Xty = X'*y; yty = y'*y;
 grad = (X'*(X*w - y))/n;
 fun(1) = 0.5*w'*(grad - Xty/n) + 0.5*yty/n + funRegC(w,d,lambda,theta,regtype);
 time(1) = 0;
-
+fun_min = fun(1);
 count = 0;
 for iter = 1:maxiter
+
     tic;
     
     w_old = w;
@@ -182,6 +185,9 @@ for iter = 1:maxiter
     
     % line search 
     for inneriter = 1:maxinneriter
+
+        % disp(sprintf('interiter : %d ', inneriter));
+        
         w = proximalRegC(w_old - grad_old/t, d, lambda/t, theta,regtype);
         dw = w - w_old;
         fun(iter+1) = 0.5*norm(X*w - y)^2/n + funRegC(w,d,lambda,theta,regtype);  
@@ -192,7 +198,12 @@ for iter = 1:maxiter
         end
     end
     time(iter+1) = time(iter) + toc;
-    
+    if(fun(iter+1) < fun_min)
+        fun_min = fun(iter+1);
+    end
+
+    % disp(sprintf('norm_w = %f',norm(w)));
+    % disp(sprintf('func = %f',fun(iter+1)));
     % stopping condition
     if stopcriterion
         relativediff = abs(fun(iter) - fun(iter+1))/fun(iter+1);
