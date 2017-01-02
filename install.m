@@ -11,6 +11,7 @@ cd ./GIST
 
 mex proximalRegC.c
 mex funRegC.c
+cd ../OPE
 mex derRegC.c
 cd ..
 

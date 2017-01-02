@@ -32,33 +32,10 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
 %          3: SCAD
 %          4: MCP 
 %
-% 'stopcriterion': stopping criterion 
-%                1: relative difference of objective functions 
-%                   is less than tol (default)
-%                0: relative difference of iterative weights is less
-%                   than tol
-%
 % 'startingpoint': starting point (default: zero vector)
 %
-% 'tolerance': stopping tolerance (default: 1e-5)
-%
 % 'maxiteration': number of maximum iteration (default: 1000)
-%
-% 'tinitialization': initialization of t (default: 1)
-%
-% 'tmin': tmin parameter (default: 1e-20)
-%
-% 'tmax': tmax parameter (default: 1e-20)
-%
-% 'eta': eta factor (default: 2)
-%
-% 'sigma': parameter in the line search (default: 1e-5)
-%
-% 'nonmonotone': nonmonotone steps in the line search (default: 5)
-% 
-% 'stopnum': number of satisfying stopping criterion (default: 3)
-%
-% 'maxinneriter': number of maximum inner iteration (line search) (default: 20)
+
 %
 % ============================= Output ====================================
 %
@@ -77,6 +54,8 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
     [n,d] = size(X);
     w0 = zeros(d,1);
     maxiter = 100;
+    a = 1;
+
     % Optional parameter settings
     parameterCount = length(varargin)/2;
 
@@ -93,16 +72,17 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
                 w0 = parameterValue;
             case 'maxiteration'
                 maxiter = parameterValue;
+            case 'bound'
+            	a = parameterValue;
             otherwise
                 error(['The parameter ''' parameterName ''' is not recognized by the function ''' mfilename '''!']);
         end
     end
 
-
+    fprintf('params : regtype = %d, maxiter = %d, bound = %f\n', regtype, maxiter, a);
+    
     s_t = zeros(d,1);
-    a = min([lambda, theta, lambda*theta]);
     w = w0; 
-
     fun = zeros(maxiter+1,1); 
     time = fun;
     time(1) = 0;
@@ -122,80 +102,19 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
         
         % Tinh F'(w)
 
-        dF = L(1) * (X'*(X*w_old - y))/n;
-
-        for i = 1 : d
-            switch regtype
-                case 1 
-                    if(w_old(i) > 0 && w_old(i) < theta)
-                        dF(i) = dF(i) + L(2);
-                    elseif (w_old(i) < 0 && w_old(i) > -theta)
-                        dF(i) = dF(i) - L(2);
-                    end            
-                case 2 
-                    if(w_old(i) > 0)
-                        dF(i) = dF(i) + L(2) * lambda / (w_old(i) + theta);
-                    elseif (w_old(i) < 0)
-                        dF(i) = dF(i) + L(2) * lambda / (w_old(i) - theta);
-                    else
-                        tmp = randi([1,2],1);
-                        if(tmp == 1)
-                            dF(i) = dF(i) + L(2) * lambda / theta;
-                        else
-                            dF(i) = dF(i) - L(2) * lambda / theta;
-                        end
-                    end
-                case 3 
-                    if(w_old(i) > lambda && w_old(i) < theta * lambda)
-                        dF(i) = dF(i) + L(2) * (-0.5*w_old(i) + 2 * lambda * theta) / (2 * theta - 2);
-                    end
-                    if(w_old(i) < -lambda && w_old(i) > -theta * lambda)
-                        dF(i) = dF(i) + L(2) * (-0.5*w_old(i) - 2 * lambda * theta) / (2 * theta - 2);
-                    end
-                    if(w_old(i) > 0 && w_old(i) < lambda)
-                        dF(i) = dF(i) + L(2) * lambda;
-                    end
-                    if(w_old(i) < 0 && w_old(i) > -lambda)
-                        dF(i) = dF(i) + L(2) * (-lambda);
-                    end
-                case 4 
-                    if (w_old(i) > 0 && w_old(i) < theta*lambda)
-                       dF(i) = dF(i) + L(2) * (lambda - w_old(i)/theta);    
-                    end
-                    if (w_old(i) < 0 && w_old(i) > -theta*lambda)
-                       dF(i) = dF(i) + L(2) * (-lambda - w_old(i)/theta);    
-                    end
-            end
-        end
+        dF = L(1) * (X'*(X*w_old - y))/n + L(2) * derRegC(w_old,d,lambda,theta, regtype);
 
 
-        % Tinh s_t = argmin<F'(w_old),x> x_i thuoc [-a, a] >
+        % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a
         [min_value, min_index] = min(dF);
         if min_value < 0
-            for i = 1: d
-                if i == min_index
-                    s_t(i) = a;
-                else 
-                    s_t(i) = 0;
-                end
-            end
+        	s_t = zeros(d,1);
+        	s_t(min_index) = a;
         else
             [max_value,max_index] = max(dF);
-            for i = 1: d
-                if i == max_index
-                    s_t(i) = -a;
-                else 
-                    s_t(i) = 0;
-                end
-            end
-        end
-        %for i = 1 : d
-            %if dF(i) > 0
-             %   s_t(i) =  - a;
-            % elseif dF(i) < 0
-             %   s_t(i) = a;
-           % end
-        %end    
+        	s_t = zeros(d,1);
+        	s_t(max_index) = -a;
+         end
 
         w = w_old + (s_t - w_old) / iter;
         fun(iter+1) = 0.5*norm(X*w - y)^2/n + funRegC(w,d,lambda,theta,regtype);
@@ -207,8 +126,3 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
         
    
     end 
-
-
-
-    fun = fun(1: min(maxiter,iter)+1);
-    time = time(1: min(maxiter,iter)+1);
