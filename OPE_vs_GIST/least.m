@@ -16,7 +16,7 @@ Data = load (filepath);
 y = Data.L';
 X = Data.X';
 
-%clear Data
+clear Data
 
 % [X,y] = readData('../../datasets/web/w8a.txt');
 
@@ -109,7 +109,7 @@ maxinneriter = 20; % number of maximum inner iteration (line search) (default: 2
       'bound',2 ...
       );
 
-fprintf('funtion = %f \n', fun1(iter1+1));
+fprintf('OPE : fun_min = %f \n', fun_min1);
 parse_count = 0;
 
 for i = 1 : d 
@@ -117,7 +117,7 @@ if w1(i) == 0
     parse_count = parse_count + 1;
 end
 end
-fprintf('parse count %d \n', parse_count);
+fprintf('w : no of zero elements = %d \n', parse_count);
 fprintf('End of OPE \n');
 
 % figure
@@ -126,10 +126,4 @@ semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
 xlabel('Iteration')
 ylabel('Objective function value (log scaled)')
 legend('OPE-Least')
-hold on 
-semilogy(0,fun_min1,'k*', 'MarkerSize',6)
-str = sprintf('  minvalue %f', fun_min1);
-semilogy(0,fun_min1,'k*', 'MarkerSize',6)
-text(0,fun_min1,str)
-hold off
 

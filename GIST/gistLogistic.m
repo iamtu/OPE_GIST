@@ -1,4 +1,4 @@
-function [w,fun,time,iter] = gistLogistic(X,y,lambda,theta,varargin)
+function [w,fun,time,iter,fun_min] = gistLogistic(X,y,lambda,theta,varargin)
 
 % Generalized Iterative Shrinkage and Thresholding (GIST) with Logsitic Regression loss
 %
@@ -194,6 +194,7 @@ temp(~posind) = (logist(~posind)-1)./logist(~posind);
 grad =  -Z'*temp/n;
 
 fun(1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n + funRegC(w,d,lambda,theta,regtype);
+fun_min = fun(1);
 time(1) = 0;
 
 count = 0;
@@ -219,6 +220,9 @@ for iter = 1:maxiter
         end
     end
     time(iter+1) = time(iter) + toc; 
+    if(fun(iter+1) < fun_min)
+        fun_min = fun(iter+1);
+    end
     
     % stopping condition
     if stopcriterion

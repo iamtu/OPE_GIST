@@ -1,13 +1,14 @@
 % Before you run this example, make sure that you have run install.m
 % to add the path and mex C files
-
 clear;
 clc;
 close all;
+fprintf('==== logistic loss ======\n');
+% load data
+filename = 'classic_binary.mat';
+filepath = strcat('../data/',filename); 
+Data = load (filepath);
 
-% load data 
-Data = load ('../data/classic_binary.mat');
-disp(Data);
 y = Data.L';
 X = Data.X';
 
@@ -15,15 +16,19 @@ clear Data
 
 % statistics of the data
 [n,d] = size(X);
-fprintf('no of instance = %d, dimension = %d', n, d);
+
 % input parameters
 lambda = 1e-3*abs(randn);
 theta = 1e-2*lambda*abs(randn);
-%theta = inf;
 
 % optional parameter settings
 
-regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
+regtype = 2; % nonconvex regularization type (default: 1 [capped L1]) 
+
+
+fprintf('Data : no of instance = %d, Dimension = %d \n', n, d);
+fprintf('Lambda = %f, theta = %f \n', lambda, theta);
+fprintf('reg type = %d \n', regtype);
 
 w0 = randn(d,1); % starting point (default: zero vector)
 
@@ -49,59 +54,55 @@ stopnum = 3; % number of satisfying stopping criterion (default: 3)
 
 maxinneriter = 20; % number of maximum inner iteration (line search) (default: 20)
 
-
 % call the function
-[w,fun,time,iter,fun_min] = gistL2SVM(X,y,lambda,theta,...
-                              'maxiteration',maxiter,...
-                              'regtype',regtype,...
-                              'stopcriterion', stopcriterion,...
-                              'tolerance',tol,...
-                              'startingpoint',w0,...
-                              'nonmonotone',M,...
-                              'tinitialization',t,...
-                              'tmin',tmin,...
-                              'tmax',tmax,...
-                              'sigma',sigma,...
-                              'eta',eta,...
-                              'stopnum',stopnum,...
-                              'maxinneriter',maxinneriter);
-                          
-% plot
-fprintf('GIST : no of iter = %d, fun_min = %f\n', iter + 1, fun_min);
+[w,fun,time,iter,fun_min] = gistLogistic(X,y,lambda,theta,...
+                                  'maxiteration',maxiter,...
+                                  'regtype',regtype,...
+                                  'stopcriterion', stopcriterion,...
+                                  'tolerance',tol,...
+                                  'startingpoint',w0,...
+                                  'nonmonotone',M,...
+                                  'tinitialization',t,...
+                                  'tmin',tmin,...
+                                  'tmax',tmax,...
+                                  'sigma',sigma,...
+                                  'eta',eta,...
+                                  'stopnum',stopnum,...
+                                  'maxinneriter',maxinneriter);
+fprintf('GIST: fun_min = %f \n', fun_min);
 parse_count = 0;
-
 for i = 1 : d 
-	if w(i) == 0
-	    parse_count = parse_count + 1;
-	end
+  if w(i) == 0
+      parse_count = parse_count + 1;
+  end
 end
 fprintf('w : no of zero elements  = %d \n', parse_count);
 fprintf('End of GIST \n\n\n');
 
-
+                              
+% plot
 figure
 subplot(1,2,1) 
 semilogy(fun(1:iter+1),'r-','LineWidth', 2)
 xlabel('Iteration')
 ylabel('Objective function value (log scaled)')
-legend('GIST-L2SVM')
+legend('GIST-Logistic')
 
 
-
-[w1,fun1,time1,iter1,fun_min1] = opeL2SVM(...
+[w1,fun1,time1,iter1,fun_min1] = opeLogistic(...
       X,y,lambda,theta, ...
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',10 ...
+      'bound',2 ...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);
 parse_count = 0;
 for i = 1 : d 
-	if w1(i) == 0
-	    parse_count = parse_count + 1;
-	end
+  if w1(i) == 0
+      parse_count = parse_count + 1;
+  end
 end
 fprintf('w : no of zero elements  = %d \n', parse_count);
 fprintf('End of OPE \n\n\n');
@@ -111,12 +112,4 @@ subplot(1,2,2)
 semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
 xlabel('Iteration')
 ylabel('Objective function value (log scaled)')
-legend('OPE-L2SVM')
-hold on 
-semilogy(0,fun_min1,'k*', 'MarkerSize',6)
-str = sprintf('  minvalue %f', fun_min1);
-semilogy(0,fun_min1,'k*', 'MarkerSize',6)
-text(0,fun_min1,str)
-hold off
-
-
+legend('OPE-Logistic')

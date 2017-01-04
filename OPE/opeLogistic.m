@@ -1,15 +1,16 @@
-function [w,fun,time,iter,fun_min] = opeL2SVM(X,y,lambda,theta,varargin)
+function [w,fun,time,iter,fun_min] = opeLogistic(X,y,lambda,theta,varargin)
 
-% OPE with L2 SVM loss
+% OPE with Logsitic Regression loss
+%
 % Non-convex optimization problem:
 %
 % min_w L(w) + \sum_i r_i(w)
 %
-% ============================ loss function ==============================
+% ================================ loss function ==========================
 %
-% L(w) = 1/2n \sum_j \max(0,1 -y_j*x_j'*w)^2 (n: number of samples)
+% L(w) = 1/n \sum_j log(1 + exp(-y_j*x_j'*w)) (n: number of samples)
 %
-% ============================ regularizer ================================
+% ================================ regularizer ============================
 %
 %  regtype = 1: Capped L1 regularizer (CapL1) (default) 
 %            r_i(w) = lambda*\min(|w_i|,theta), (theta > 0, lambda >= 0)
@@ -45,10 +46,11 @@ function [w,fun,time,iter,fun_min] = opeL2SVM(X,y,lambda,theta,varargin)
 %          3: SCAD
 %          4: MCP 
 %
-%
 % 'startingpoint': starting point (default: zero vector)
-%%
-% 'maxiteration': number of maximum iteration (default: 100)
+%
+% 'maxiteration': number of maximum iteration (default: 1000)
+%
+% 'tinitialization': initialization of t (default: 1)
 %
 % ============================= Output ====================================
 %
@@ -59,7 +61,6 @@ function [w,fun,time,iter,fun_min] = opeL2SVM(X,y,lambda,theta,varargin)
 % time: a vector including all CPU times at each iteration
 %
 % iter: the number of iterative steps 
-
 
 if nargin < 4
     error('Too few input parameters!');
@@ -78,8 +79,8 @@ end
 regtype = 1;
 [n,d] = size(X); 
 w0 = zeros(d,1);
-maxiter = 100;
-a = 1;
+maxiter = 1000;
+a = 2;
 
 % Optional parameter settings
 parameterCount = length(varargin)/2;
@@ -95,49 +96,61 @@ for parameterIndex = 1:parameterCount,
             end
         case 'startingpoint'
             w0 = parameterValue;
-        case 'bound'
-            a = parameterValue;
         case 'maxiteration'
             maxiter = parameterValue;
+        case 'bound'
+            a = parameterValue;
         otherwise
             error(['The parameter ''' parameterName ''' is not recognized by the function ''' mfilename '''!']);
     end
 end
-
-fprintf('OPE params : a = %f, maxiter = %d\n',a, maxiter);
-
+fprintf('OPE Logistic paras : a = %f, maxiter : %d\n', a, maxiter);
 w = w0; 
-fun = zeros(maxiter+1,1); 
+fun = zeros(maxiter+1,1);
 time = fun;
-fun_min = fun(1);
-% Initial function value
-Z = sparse(1:n,1:n,y,n,n)*X; % Z = n x d
-Zw = -Z*w; % Zw = n x 1
-hinge = max(0,1+Zw); % hinge = n x 1
-grad =  -Z'*hinge/n; % grad = d x 1
 
-fun(1) = 0.5*(hinge'*hinge)/n + funRegC(w,d,lambda,theta,regtype);
-time(1) = 0;
+logist = zeros(n,1);
+
+% Initial function value
+Z = sparse(1:n,1:n,y,n,n)*X;
+Zw = -Z*w; 
+posind = (Zw > 0);
+logist(posind) = 1 + exp(-Zw(posind));
+logist(~posind) = 1 + exp(Zw(~posind));
+
+temp = logist;
+temp(posind) = 1./logist(posind);
+temp(~posind) = (logist(~posind)-1)./logist(~posind);
+grad =  -Z'*temp/n;
+
+fun(1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n + funRegC(w,d,lambda,theta,regtype);
 fun_min = fun(1);
+time(1) = 0;
 L = [1,1];
 
 for iter = 1:maxiter
-
     tic;
     
     w_old = w;
-    
+
     % chon ngau nhien g1, g2
     randIndex = randi([1,2],1);
     L(randIndex) = L(randIndex) + 1;
     
     % Tinh F'(w)
     Zw = -Z*w_old; 
-    hinge = max(0,1+Zw);
-    grad =  -Z'*hinge/n;
+    posind = (Zw > 0);
+    logist(posind) = 1 + exp(-Zw(posind));
+    logist(~posind) = 1 + exp(Zw(~posind));
+
+    temp = logist;
+    temp(posind) = 1./logist(posind);
+    temp(~posind) = (logist(~posind)-1)./logist(~posind);
+    grad =  -Z'*temp/n;
+
+    
     dF = L(1) * grad + L(2) * derRegC(w_old,d,lambda,theta, regtype);
-
-
+    
     % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a
     [min_value, min_index] = min(dF);
     if min_value < 0
@@ -149,14 +162,21 @@ for iter = 1:maxiter
         s_t(max_index) = -a;
     end
     
+    % update w
     w = w_old + (s_t - w_old) / iter;
-    Zw = -Z*w;
-    hinge = max(0,1+Zw);
-    fun(iter+1) = 0.5*(hinge'*hinge)/n + funRegC(w,d,lambda,theta,regtype);
 
-    time(iter+1) = time(iter) + toc;
-    if (fun(iter+1) < fun_min)
+    % calculate fun(iter+1)
+    Zw = -Z*w; 
+    posind = (Zw > 0);
+    logist(posind) = 1 + exp(-Zw(posind));
+    logist(~posind) = 1 + exp(Zw(~posind));
+    fun(iter+1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n + funRegC(w,d,lambda,theta,regtype);  
+    
+    if(fun(iter+1) < fun_min)
         fun_min = fun(iter+1);
     end
-    
-end 
+
+    time(iter+1) = time(iter) + toc; 
+
+
+end
