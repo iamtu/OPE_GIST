@@ -15,15 +15,15 @@ clear Data
 
 % statistics of the data
 [n,d] = size(X);
-fprintf('no of instance = %d, dimension = %d', n, d);
+fprintf('no of instance = %d, dimension = %d\n', n, d);
 % input parameters
 lambda = 1e-3*abs(randn);
 theta = 1e-2*lambda*abs(randn);
-%theta = inf;
-
+% theta = inf;
+% theta = 3;
 % optional parameter settings
 
-regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
+regtype = 4; % nonconvex regularization type (default: 1 [capped L1]) 
 
 w0 = randn(d,1); % starting point (default: zero vector)
 
@@ -80,12 +80,8 @@ fprintf('End of GIST \n\n\n');
 
 
 figure
-subplot(1,2,1) 
-semilogy(fun(1:iter+1),'r-','LineWidth', 2)
-xlabel('Iteration')
-ylabel('Objective function value (log scaled)')
-legend('GIST-L2SVM')
-
+semilogy(fun(1:iter+1),'r-','LineWidth', 2);
+hold on
 
 
 [w1,fun1,time1,iter1,fun_min1] = opeL2SVM(...
@@ -93,7 +89,7 @@ legend('GIST-L2SVM')
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',10 ...
+      'bound',0.1 ...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);
@@ -106,17 +102,9 @@ end
 fprintf('w : no of zero elements  = %d \n', parse_count);
 fprintf('End of OPE \n\n\n');
 
-% figure
-subplot(1,2,2) 
-semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
-xlabel('Iteration')
-ylabel('Objective function value (log scaled)')
-legend('OPE-L2SVM')
-hold on 
-semilogy(0,fun_min1,'k*', 'MarkerSize',6)
-str = sprintf('  minvalue %f', fun_min1);
-semilogy(0,fun_min1,'k*', 'MarkerSize',6)
-text(0,fun_min1,str)
-hold off
+semilogy(fun1(1:iter1+1),'b-','LineWidth', 2);
+xlabel('Iteration');
+ylabel('Objective function value (log scaled)');
+legend({['GIST-L2SVM'],'OPE-L2SVM'})
 
 

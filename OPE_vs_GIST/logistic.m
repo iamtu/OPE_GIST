@@ -82,12 +82,8 @@ fprintf('End of GIST \n\n\n');
                               
 % plot
 figure
-subplot(1,2,1) 
-semilogy(fun(1:iter+1),'r-','LineWidth', 2)
-xlabel('Iteration')
-ylabel('Objective function value (log scaled)')
-legend('GIST-Logistic')
-
+semilogy(fun(1:iter+1),'r-','LineWidth', 2);
+hold on;
 
 [w1,fun1,time1,iter1,fun_min1] = opeLogistic(...
       X,y,lambda,theta, ...
@@ -108,8 +104,7 @@ fprintf('w : no of zero elements  = %d \n', parse_count);
 fprintf('End of OPE \n\n\n');
 
 % figure
-subplot(1,2,2) 
 semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
-xlabel('Iteration')
-ylabel('Objective function value (log scaled)')
-legend('OPE-Logistic')
+xlabel('Iteration');
+ylabel('Objective function value (log scaled)');
+legend({['GIST-L2SVM'],'OPE-L2SVM'});

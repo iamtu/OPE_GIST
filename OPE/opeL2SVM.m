@@ -148,8 +148,27 @@ for iter = 1:maxiter
         s_t = zeros(d,1);
         s_t(max_index) = -a;
     end
-    
+
+
+    % Tinh s_t = argmax<F'(w_old),x> : sum_i |x_i|  <= a
+    % [max_value, max_index] = max(dF);
+    % if max_value > 0
+    %     s_t = zeros(d,1);
+    %     s_t(max_index) = a;
+    % else
+    %     [min_value,min_index] = min(dF);
+    %     s_t = zeros(d,1);
+    %     s_t(min_index) = -a;
+    % end
+
+    % s_t = zeros(d,1);
+    % s_t (dF < 0) = a;
+    % s_t (dF > 0) = -a;
+
+    % update w
     w = w_old + (s_t - w_old) / iter;
+    
+    %calculate fun(iter+1)
     Zw = -Z*w;
     hinge = max(0,1+Zw);
     fun(iter+1) = 0.5*(hinge'*hinge)/n + funRegC(w,d,lambda,theta,regtype);
