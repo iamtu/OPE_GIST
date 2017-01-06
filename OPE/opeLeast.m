@@ -1,7 +1,7 @@
 function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
 
 
-% Non-convex optimization problem:
+% OPE to solve Non-convex optimization problem:
 %
 % min_w L(w) + \sum_i r_i(w)
 %
@@ -35,8 +35,8 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
 % 'startingpoint': starting point (default: zero vector)
 %
 % 'maxiteration': number of maximum iteration (default: 1000)
-
-%
+% 
+% 'bound' : bound value of w
 % ============================= Output ====================================
 %
 % w: output weight vector
@@ -44,12 +44,12 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
 % fun: a vector including all function values at each iteration
 %
 % time: a vector including all CPU times at each iteration
-%
+% 
 % iter: the number of iterative steps 
+% 
+% fun_min : the minimum value OPE can reach
 %
 % =========================================================================
-
-fprintf('enter OPE Least %s \n', datestr(datetime));    
 
 [n,d] = size(X);
 w0 = zeros(d,1);
@@ -79,7 +79,7 @@ for parameterIndex = 1:parameterCount,
     end
 end
 
-fprintf('params : regtype = %d, maxiter = %d, bound = %f\n', regtype, maxiter, a);
+fprintf('OPE params : regtype = %d, maxiter = %d, bound = %f\n', regtype, maxiter, a);
 
 s_t = zeros(d,1);
 w = w0; 
@@ -116,7 +116,8 @@ for iter = 1:maxiter
     	s_t(max_index) = -a;
      end
 
-    w = w_old + (s_t - w_old) / iter;
+    alpha = 1.0/(iter+1);
+    w = w_old *(1-alpha) + (s_t - w_old) * alpha;
     fun(iter+1) = 0.5*norm(X*w - y)^2/n + funRegC(w,d,lambda,theta,regtype);
 
     time(iter+1) = time(iter) + toc;

@@ -7,7 +7,6 @@ close all;
 
 % load data 
 Data = load ('../data/classic_binary.mat');
-disp(Data);
 y = Data.L';
 X = Data.X';
 
@@ -15,7 +14,6 @@ clear Data
 
 % statistics of the data
 [n,d] = size(X);
-fprintf('no of instance = %d, dimension = %d\n', n, d);
 % input parameters
 lambda = 1e-3*abs(randn);
 theta = 1e-2*lambda*abs(randn);
@@ -23,7 +21,13 @@ theta = 1e-2*lambda*abs(randn);
 % theta = 3;
 % optional parameter settings
 
-regtype = 4; % nonconvex regularization type (default: 1 [capped L1]) 
+regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
+
+
+fprintf('===== L2 SVM loss (hinge loss square)====\n');
+fprintf('Data : no of instance = %d, dimension = %d\n', n, d);
+fprintf('Lambda = %d, Theta = %f \n', lambda, theta);
+fprintf('Regtype = %d\n\n', regtype);
 
 w0 = randn(d,1); % starting point (default: zero vector)
 
@@ -67,7 +71,7 @@ maxinneriter = 20; % number of maximum inner iteration (line search) (default: 2
                               'maxinneriter',maxinneriter);
                           
 % plot
-fprintf('GIST : no of iter = %d, fun_min = %f\n', iter + 1, fun_min);
+fprintf('GIST : fun_min = %f\n',fun_min);
 parse_count = 0;
 
 for i = 1 : d 
@@ -80,7 +84,11 @@ fprintf('End of GIST \n\n\n');
 
 
 figure
+subplot(1,2,1);
 semilogy(fun(1:iter+1),'r-','LineWidth', 2);
+xlabel('Iteration');
+ylabel('Objective function value (log scaled)');
+legend('GIST-L2SVM');
 hold on
 
 
@@ -89,7 +97,7 @@ hold on
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',0.1 ...
+      'bound',1 ...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);
@@ -102,9 +110,11 @@ end
 fprintf('w : no of zero elements  = %d \n', parse_count);
 fprintf('End of OPE \n\n\n');
 
+subplot(1,2,2);
 semilogy(fun1(1:iter1+1),'b-','LineWidth', 2);
 xlabel('Iteration');
 ylabel('Objective function value (log scaled)');
-legend({['GIST-L2SVM'],'OPE-L2SVM'})
+legend('OPE-L2SVM');
+% legend({['GIST-L2SVM'],'OPE-L2SVM'})
 
 

@@ -1,6 +1,6 @@
 function [w,fun,time,iter,fun_min] = opeLogistic(X,y,lambda,theta,varargin)
 
-% OPE with Logsitic Regression loss
+% OPE to solve Logsitic Regression loss
 %
 % Non-convex optimization problem:
 %
@@ -49,8 +49,8 @@ function [w,fun,time,iter,fun_min] = opeLogistic(X,y,lambda,theta,varargin)
 % 'startingpoint': starting point (default: zero vector)
 %
 % 'maxiteration': number of maximum iteration (default: 1000)
-%
-% 'tinitialization': initialization of t (default: 1)
+% 
+% 'bound' : bound value
 %
 % ============================= Output ====================================
 %
@@ -61,6 +61,9 @@ function [w,fun,time,iter,fun_min] = opeLogistic(X,y,lambda,theta,varargin)
 % time: a vector including all CPU times at each iteration
 %
 % iter: the number of iterative steps 
+% 
+% fun_min : the minimum value OPE can reach in iterations
+
 
 if nargin < 4
     error('Too few input parameters!');
@@ -163,7 +166,8 @@ for iter = 1:maxiter
     end
     
     % update w
-    w = w_old + (s_t - w_old) / iter;
+    alpha = 1.0 / iter;
+    w = w_old * (1.0 - alpha) + (s_t - w_old) * alpha;
 
     % calculate fun(iter+1)
     Zw = -Z*w; 

@@ -1,6 +1,6 @@
 function [w,fun,time,iter,fun_min] = opeL2SVM(X,y,lambda,theta,varargin)
 
-% OPE with L2 SVM loss
+% OPE to solve L2 SVM loss
 % Non-convex optimization problem:
 %
 % min_w L(w) + \sum_i r_i(w)
@@ -47,9 +47,10 @@ function [w,fun,time,iter,fun_min] = opeL2SVM(X,y,lambda,theta,varargin)
 %
 %
 % 'startingpoint': starting point (default: zero vector)
-%%
+%
 % 'maxiteration': number of maximum iteration (default: 100)
 %
+% 'bound' : bound value of w
 % ============================= Output ====================================
 %
 % w: output weight vector
@@ -59,7 +60,8 @@ function [w,fun,time,iter,fun_min] = opeL2SVM(X,y,lambda,theta,varargin)
 % time: a vector including all CPU times at each iteration
 %
 % iter: the number of iterative steps 
-
+% 
+% fun_min : the minimum of f OPE can reach
 
 if nargin < 4
     error('Too few input parameters!');
@@ -166,7 +168,8 @@ for iter = 1:maxiter
     % s_t (dF > 0) = -a;
 
     % update w
-    w = w_old + (s_t - w_old) / iter;
+    alpha = 1.0 / iter;
+    w = w_old * (1-alpha) + (s_t - w_old) * alpha;
     
     %calculate fun(iter+1)
     Zw = -Z*w;

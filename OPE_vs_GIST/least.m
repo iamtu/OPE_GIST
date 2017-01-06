@@ -22,19 +22,19 @@ clear Data
 
 
 [n,d] = size(X);
-wt = randn(d,1) *2 - 1;
 
 % input parameters
-lambda = 1e-3*abs(randn);
+lambda = 1e-2*abs(randn);
 theta = 1e-2*lambda*abs(randn);
 %theta = 3;
 % optional parameter settings
 
-regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
+regtype = 2; % nonconvex regularization type (default: 1 [capped L1]) 
 
-fprintf('no of instance = %d, dimension = %d\n', n, d);
-fprintf('reg type = %d\n', regtype);
-fprintf('lambda = %f, theta = %f \n', lambda, theta);
+fprintf('===== Least loss ====\n');
+fprintf('Data : no of instance = %d, dimension = %d\n', n, d);
+fprintf('Lambda = %d, Theta = %f \n', lambda, theta);
+fprintf('Regtype = %d\n\n', regtype);
 
 w0 = randn(d,1); % starting point (default: zero vector)
 
@@ -89,14 +89,18 @@ fprintf('End of GIST \n\n\n');
 
 
 figure
+subplot(1,2,1);
 semilogy(fun(1:iter+1),'r-','LineWidth', 2);
+xlabel('Iteration');
+ylabel('Objective function value (log scaled)');
+legend('GIST-Least');
 hold on;
 
 
 [w1,fun1,time1,iter1,fun_min1] = opeLeast(...
       X,y,lambda,theta, ...
       'regtype',regtype, ...
-      'startingpoint',wt, ...
+      'startingpoint',w0, ...
       'maxiteration',50, ...
       'bound',2 ...
       );
@@ -111,8 +115,10 @@ end
 fprintf('w : no of zero elements = %d \n', parse_count);
 fprintf('End of OPE \n');
 
-semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
+subplot(1,2,2);
+semilogy(fun1(1:iter1+1),'b-','LineWidth', 2);
 xlabel('Iteration');
 ylabel('Objective function value (log scaled)');
-legend({['GIST-L2SVM'],'OPE-L2SVM'})
+legend('OPE-Least');
+% legend({['GIST-L2SVM'],'OPE-L2SVM'})
 
