@@ -1,0 +1,8 @@
+6/1/2017
+- non diffirential non convex optimization
+
+- vi du cho sparsity penalty optimization
+
+
+- l2SVM : settings hop li
+- viet lai cac buoc chi tiet

@@ -17,9 +17,9 @@ clear Data
 [n,d] = size(X);
 
 % input parameters
-lambda = 1e-2*abs(randn);
-theta = 1e-2*lambda*abs(randn);
-% theta = 2.5;
+lambda = 1*abs(randn);
+% theta = 1e-2*lambda*abs(randn);
+theta = 1;
 % optional parameter settings
 
 regtype = 4; % nonconvex regularization type (default: 1 [capped L1]) 
@@ -93,7 +93,7 @@ hold on;
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',2 ...
+      'bound',10 ...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);

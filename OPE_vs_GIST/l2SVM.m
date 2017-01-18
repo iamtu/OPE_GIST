@@ -15,13 +15,14 @@ clear Data
 % statistics of the data
 [n,d] = size(X);
 % input parameters
-lambda = 1e-3*abs(randn);
-theta = 1e-2*lambda*abs(randn);
+% lambda = 1e-6*abs(randn);
+lambda = 10;
+theta = 1e-1*lambda*abs(randn);
 % theta = inf;
 % theta = 3;
 % optional parameter settings
 
-regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
+regtype = 2; % nonconvex regularization type (default: 1 [capped L1]) 
 
 
 fprintf('===== L2 SVM loss (hinge loss square)====\n');
@@ -97,7 +98,7 @@ hold on
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',1 ...
+      'bound',10 ...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);
