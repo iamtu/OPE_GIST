@@ -6,3 +6,18 @@
 
 - l2SVM : settings hop li
 - viet lai cac buoc chi tiet
+
+
+20/1/2017
+
+ - cai dat lai buoc tim R'
+ - paper : 
+ 	1. more evaluation on. performance, explaination.
+ 		other perspective
+			stability :  more randomness ??
+				OPE4 - with different alpha
+				extra key parameters OPE4. alpha.? 
+			the number of iteration
+			time requirement
+			give example for some datasets
+

@@ -22,14 +22,14 @@ clear Data
 
 
 [n,d] = size(X);
+regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
 
 % input parameters
-lambda = 1e-2*abs(randn);
-theta = 1e-2*lambda*abs(randn);
-%theta = 3;
+lambda = 1e-4;
+theta = 0.01*lambda;
+
 % optional parameter settings
 
-regtype = 2; % nonconvex regularization type (default: 1 [capped L1]) 
 
 fprintf('===== Least loss ====\n');
 fprintf('Data : no of instance = %d, dimension = %d\n', n, d);
@@ -42,15 +42,15 @@ stopcriterion = 1; % stoppng criterion (default: 1)
 
 maxiter = 1000; % number of maximum iteration (default: 1000)
 
-tol = 1e-5; % stopping tolerance (default: 1e-5)
+tol = 1e-8; % stopping tolerance (default: 1e-5)
 
 M = 5; % nonmonotone steps (default: 5)
 
 t = 1; % initialization of t (default: 1)
 
-tmin = 1e-20; % tmin parameter (default: 1e-20)
+tmin = 1e-30; % tmin parameter (default: 1e-20)
 
-tmax = 1e20; % tmax parameter (default: 1e20)
+tmax = 1e30; % tmax parameter (default: 1e20)
 
 sigma = 1e-5; % parameter in the line search (default: 1e-5)
 
@@ -102,7 +102,7 @@ hold on;
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',2 ...
+      'bound',100 ...
       );
 
 fprintf('OPE : fun_min = %f \n', fun_min1);

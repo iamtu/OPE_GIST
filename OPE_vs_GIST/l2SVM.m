@@ -6,24 +6,40 @@ clc;
 close all;
 
 % load data 
+
 Data = load ('../data/classic_binary.mat');
 y = Data.L';
 X = Data.X';
 
 clear Data
 
+% [X,y] = readData('../../datasets/web/w8a.txt');
+
 % statistics of the data
 [n,d] = size(X);
 % input parameters
 % lambda = 1e-6*abs(randn);
-lambda = 10;
-theta = 1e-1*lambda*abs(randn);
+lambda = 0.001;
+ theta = 2.1;
 % theta = inf;
 % theta = 3;
 % optional parameter settings
 
-regtype = 2; % nonconvex regularization type (default: 1 [capped L1]) 
+regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
+%chon theta = 0.1 lambda, lambda = 1e-6
+% lambda cang nho thi min cang nho. tol = 1e-8
 
+
+regtype = 2; % nonconvex regularization type (default: 1 [capped L1]) 
+% lambda = 1e-4; theta = 1e1*lambda; OPE kha on dinh
+
+regtype = 3; % nonconvex regularization type (default: 1 [capped L1]) 
+% lambda = 1e-3; theta = 3; OPE kha on dinh
+% neu lambda lon (1, 0.1, 0.01) thi OPE bi di len dang duoi
+
+
+regtype = 4; % nonconvex regularization type (default: 1 [capped L1]) 
+% tham so giong regtype = 3
 
 fprintf('===== L2 SVM loss (hinge loss square)====\n');
 fprintf('Data : no of instance = %d, dimension = %d\n', n, d);
@@ -32,11 +48,12 @@ fprintf('Regtype = %d\n\n', regtype);
 
 w0 = randn(d,1); % starting point (default: zero vector)
 
-stopcriterion = 0; % stopping criterion (default: 1)
+stopcriterion = 1; % stopping criterion (default: 1)
 
 maxiter = 1000; % number of maximum iteration (default: 1000)
 
-tol = 1e-5; % stopping tolerance (default: 1e-5)
+tol = 1e-9; % stopping tolerance (default: 1e-5)
+% thuat toan chay on dinh hon
 
 M = 5; % nonmonotone steps (default: 5)
 
@@ -98,7 +115,7 @@ hold on
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',10 ...
+      'bound',100 ...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);

@@ -13,25 +13,33 @@ X = Data.X';
 
 clear Data
 
+% [X,y] = readData('../../datasets/news20.binary');
+[X,y] = readData('../../datasets/real-sim');
+
 % statistics of the data
 [n,d] = size(X);
 
 % input parameters
-lambda = 1*abs(randn);
-% theta = 1e-2*lambda*abs(randn);
-theta = 1;
+% lambda = 1e-4;
+% theta = 0.1 * lambda;
 % optional parameter settings
 
-regtype = 4; % nonconvex regularization type (default: 1 [capped L1]) 
+regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
+lambda = 1e-4;
+theta = 1e-1*lambda;
+
+% regtype = 3;
+% chay lau, ra len xuong neu lambda nho 1e-4 : 1e-5
+
 
 fprintf('==== logistic loss ======\n');
 fprintf('Data : no of instance = %d, Dimension = %d \n', n, d);
 fprintf('Lambda = %f, theta = %f \n', lambda, theta);
 fprintf('reg type = %d \n\n', regtype);
 
-w0 = randn(d,1) ; % starting point (default: zero vector)
+w0 = zeros(d,1) ; % starting point (default: zero vector)
 
-stopcriterion = 0; % stopping criterion (default: 1)
+stopcriterion = 1; % stopping criterion (default: 1)
 
 maxiter = 1000; % number of maximum iteration (default: 1000)
 
@@ -41,9 +49,9 @@ M = 5; % nonmonotone steps (default: 5)
 
 t = 1; % initialization of t (default: 1)
 
-tmin = 1e-20; % tmin parameter (default: 1e-20)
+tmin = 1e-30; % tmin parameter (default: 1e-20)
 
-tmax = 1e20; % tmax parameter (default: 1e20)
+tmax = 1e30; % tmax parameter (default: 1e20)
 
 sigma = 1e-5; % parameter in the line search (default: 1e-5)
 
@@ -81,8 +89,8 @@ fprintf('End of GIST \n\n\n');
                               
 % plot
 figure
-subplot(1,2,1);
-semilogy(fun(1:iter+1),'r-','LineWidth', 2);
+% subplot(1,2,1);
+semilogy(time(1:iter+1), fun(1:iter+1),'r-','LineWidth', 2);
 xlabel('Iteration');
 ylabel('Objective function value (log scaled)');
 legend('GIST-Logistic')
@@ -93,7 +101,7 @@ hold on;
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',50, ...
-      'bound',10 ...
+      'bound',1e2...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);
@@ -107,9 +115,9 @@ fprintf('w : no of zero elements  = %d \n', parse_count);
 fprintf('End of OPE \n\n\n');
 
 % figure
-subplot(1,2,2);
+% subplot(1,2,2);
 semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
 xlabel('Iteration');
 ylabel('Objective function value (log scaled)');
 legend('OPE-Logistic')
-% legend({['GIST-L2SVM'],'OPE-L2SVM'});
+% % legend({['GIST-L2SVM'],'OPE-L2SVM'});

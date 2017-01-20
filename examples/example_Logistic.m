@@ -6,7 +6,7 @@ clc;
 close all;
 
 % load data 
-Data = load ('..\data\classic_binary.mat');
+Data = load ('../data/classic_binary.mat');
 
 y = Data.L';
 X = Data.X';
@@ -17,14 +17,14 @@ clear Data
 [n,d] = size(X);
 
 % input parameters
-lambda = 1e-3*abs(randn);
-theta = 1e-2*lambda*abs(randn);
+lambda = 1e-4;
+theta = 1e-1*lambda;
 
 % optional parameter settings
 
 regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
 
-w0 = randn(d,1); % starting point (default: zero vector)
+w0 = zeros(d,1); % starting point (default: zero vector)
 
 stopcriterion = 0; % stopping criterion (default: 1)
 
