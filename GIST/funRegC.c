@@ -45,13 +45,11 @@
 
    For any problem, please contact Pinghua Gong via pinghuag@gmail.com
 */
-int max(double x, double y){
-    if(x>=y) return 1;
-    return 0;
+double max(double x, double y){
+    return x > y ? x : y;
 }
-int min(double x, double y){
-    if(x<y) return 1;
-    return 0;
+double min(double x, double y){
+    return x < y ? x : y; 
 }
 
 void funCapL1(double *f, double *x, long n, double lambda, double theta)

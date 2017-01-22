@@ -14,7 +14,7 @@ X = Data.X';
 clear Data
 
 % [X,y] = readData('../../datasets/news20.binary');
-[X,y] = readData('../../datasets/real-sim');
+% [X,y] = readData('../../datasets/real-sim');
 
 % statistics of the data
 [n,d] = size(X);
@@ -25,7 +25,7 @@ clear Data
 % optional parameter settings
 
 regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
-lambda = 1e-4;
+lambda = 1e-1;
 theta = 1e-1*lambda;
 
 % regtype = 3;
@@ -33,11 +33,13 @@ theta = 1e-1*lambda;
 
 
 fprintf('==== logistic loss ======\n');
+fprintf('Dataset : %s\n', filename);
+
 fprintf('Data : no of instance = %d, Dimension = %d \n', n, d);
 fprintf('Lambda = %f, theta = %f \n', lambda, theta);
 fprintf('reg type = %d \n\n', regtype);
 
-w0 = zeros(d,1) ; % starting point (default: zero vector)
+w0 = randn(d,1) ; % starting point (default: zero vector)
 
 stopcriterion = 1; % stopping criterion (default: 1)
 
@@ -89,8 +91,8 @@ fprintf('End of GIST \n\n\n');
                               
 % plot
 figure
-% subplot(1,2,1);
-semilogy(time(1:iter+1), fun(1:iter+1),'r-','LineWidth', 2);
+subplot(1,2,1);
+semilogy(fun(1:iter+1),'r-','LineWidth', 2);
 xlabel('Iteration');
 ylabel('Objective function value (log scaled)');
 legend('GIST-Logistic')
@@ -100,8 +102,8 @@ hold on;
       X,y,lambda,theta, ...
       'regtype',regtype, ...
       'startingpoint',w0, ...
-      'maxiteration',50, ...
-      'bound',1e2...
+      'maxiteration',200, ...
+      'bound',1e4...
       );
 
 fprintf('OPE: fun_min = %f \n', fun_min1);
@@ -115,7 +117,7 @@ fprintf('w : no of zero elements  = %d \n', parse_count);
 fprintf('End of OPE \n\n\n');
 
 % figure
-% subplot(1,2,2);
+subplot(1,2,2);
 semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
 xlabel('Iteration');
 ylabel('Objective function value (log scaled)');
