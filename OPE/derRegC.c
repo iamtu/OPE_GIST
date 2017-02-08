@@ -10,6 +10,7 @@
 #include <mex.h>
 #include <math.h>
 #include "matrix.h"
+#include "funElementReg.c"
 
 /*
 -------------------------- Derivation of Regulazation -----------------------------
@@ -17,7 +18,7 @@
  f = \sum_i r_i(x)
 
  Usage (in matlab):
- [f]=derRegC(x, n, lambda, theta,type); n is the dimension of the vector d
+ [f]=derRegC(x, n, lambda, theta, type, eps); n is the dimension of the vector x
 
  type = 1: Capped L1 regularizer (CapL1) 
            r_i(x) = lambda*\min(|x_i|,theta), (theta > 0, lambda >= 0)
@@ -38,32 +39,22 @@
  default: type = 1
 
 */
-void derCapL1(double *f, double *x, long n, double lambda, double theta)
+
+void derCapL1(double *f, double *x, long n, double lambda, double theta, double eps)
 {
     long i;
     double rand_value = 0;
 	for(i=0;i<n;i++) {
 		if(x[i] == theta){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value < 0.5){
-				f[i] = lambda;
-			}
+			f[i] = (elementCapL1(theta + eps) - elementCapL1(theta - eps)) / (2*eps);
 		} else if(x[i] > 0 && x[i] < theta){
 			f[i] = lambda;
 		} else if(x[i] == 0){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = lambda;
-			} else{
-				f[i] = -lambda;
-			}
+			f[i] = (elementCapL1(eps) - elementCapL1(-eps)) / (2*eps);
 		} else if(x[i] < 0 && x[i] > -theta){
 			f[i] = -lambda;
 		} else if(x[i] == -theta){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = -lambda;
-			}
+			f[i] = (elementCapL1(-theta + eps) - elementCapL1(-theta - eps)) / (2*eps);
 		} else {
 			f[i] = 0;
 		}
@@ -72,7 +63,7 @@ void derCapL1(double *f, double *x, long n, double lambda, double theta)
 }
           
 
-void derLSP(double *f, double *x, long n, double lambda, double theta)
+void derLSP(double *f, double *x, long n, double lambda, double theta, double eps)
 {
     long i;
     double rand_value = 0;
@@ -80,12 +71,7 @@ void derLSP(double *f, double *x, long n, double lambda, double theta)
 		if(x[i] > 0){
 			f[i] = lambda * (x[i] + theta);
 		} else if(x[i] == 0) {
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = lambda * (x[i] + theta);
-			} else {
-				f[i] = -lambda * (x[i] + theta);
-			}
+			f[i] = (elementLSP(eps) - elementLSP(-eps)) / (2*eps);
 		} else {
 			f[i] = -lambda * (x[i] + theta);
 		}
@@ -93,52 +79,31 @@ void derLSP(double *f, double *x, long n, double lambda, double theta)
 	return;
 }
 
-void derSCAD(double *f, double *x, long n, double lambda, double theta)
+void derSCAD(double *f, double *x, long n, double lambda, double theta, double eps)
 {
     long i;
 	double u = theta*lambda;
 	double rand_value;
 	for(i=0;i<n;i++) { 
 		if(x[i] == u){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value < 0.5){
-				f[i] = (-x[i] + u) / (theta - 1);
-			}
+			f[i] = (elementSCAD(u + eps) - elementSCAD(u - eps)) / (2*eps);
 		} else if(x[i] < u && x[i] > lambda) {
 			f[i] = (-x[i] + u) / (theta - 1);
 		} else if(x[i] == lambda) {
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = (-x[i] + u) / (theta - 1);
-			} else {
-				f[i] = lambda;
-			}
+			f[i] = (elementSCAD(lambda + eps) - elementSCAD(lambda - eps)) / (2*eps);
 		} else if(x[i] < lambda && x[i] > 0){
 			f[i] = lambda;
 		} else if(x[i] == 0){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = lambda;
-			} else {
-				f[i] = -lambda;
-			}
+			f[i] = (elementSCAD(eps) - elementSCAD(-eps)) / (2*eps);
 		}
 		else if(x[i] < 0 && x[i] > -lambda){
 			f[i] = -lambda;
 		} else if(x[i] == -lambda){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = -lambda;
-			} else {
-				f[i] = (-x[i] -u) /(theta - 1);
-			}
+			f[i] = (elementSCAD(-lambda + eps) - elementSCAD(-lambda - eps)) / (2*eps);
 		} else if(x[i] < -lambda && x[i] > -u) {
 			f[i] = (-x[i] -u) /(theta - 1); 
 		} else if(x[i] == -u) {
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = (-x[i] -u) /(theta - 1);
-			}
+			f[i] = (elementSCAD(-u + eps) - elementSCAD(-u - eps)) / (2*eps);
 		} else {
 			f[i] = 0;
 		}
@@ -147,7 +112,7 @@ void derSCAD(double *f, double *x, long n, double lambda, double theta)
 	return;
 }
 
-void derMCP(double *f, double *x, long n, double lambda, double theta)
+void derMCP(double *f, double *x, long n, double lambda, double theta, double eps)
 {
     long i;
 	double u = theta*lambda;
@@ -155,26 +120,15 @@ void derMCP(double *f, double *x, long n, double lambda, double theta)
 
     for(i=0;i<n;i++) { 
     	if(x[i] == u){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value < 0.5){
-				f[i] = lambda - x[i]/theta;
-			} 
+    		f[i] = (elementMCP(u + eps) - elementMCP(u - eps))/ (2*eps);
     	} else if(x[i] < u && x[i] > 0){
     		f[i] = lambda - x[i]/theta;
     	} else if(x[i] == 0){
-			rand_value = (double) rand() / (RAND_MAX);
-			if(rand_value > 0.5){
-				f[i] = lambda - x[i]/theta;
-			} else {
-				f[i] = -lambda - x[i]/theta;
-			}
+    		f[i] = (elementMCP(eps) - elementMCP(-eps))/ (2*eps);
     	} else if(x[i] < 0 && x[i] > -u){
     		f[i] = -lambda - x[i]/theta;
     	} else if(x[i] == -u){
-    		rand_value = (double) rand() / (RAND_MAX);
-    		if(rand_value > 0.5){
-    			f[i] = -lambda - x[i]/theta;
-    		} 
+    		f[i] = (elementMCP(-u + eps) - elementMCP(-u - eps))/ (2*eps);
     	} else{
     		f[i] = 0;
     	}
@@ -192,7 +146,8 @@ void mexFunction (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     long     n      =      (long)mxGetScalar(prhs[1]);
     double  lambda  =            mxGetScalar(prhs[2]);
 	double  theta   =            mxGetScalar(prhs[3]);
-	int     type    =       (int)mxGetScalar(prhs[4]);
+	double  eps 	= 			 mxGetScalar(prhs[4]);
+	int     type    =       (int)mxGetScalar(prhs[5]);
     
     double *f;
 
@@ -204,19 +159,19 @@ void mexFunction (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
 	switch (type) {
 	case 1:
-		derCapL1(f, x, n, lambda, theta);
+		derCapL1(f, x, n, lambda, theta, eps);
 		break;
 	case 2:
-		derLSP(f, x, n, lambda, theta);
+		derLSP(f, x, n, lambda, theta, eps);
 		break;
 	case 3:
-		derSCAD(f, x, n, lambda, theta);
+		derSCAD(f, x, n, lambda, theta, eps);
 		break;
 	case 4:
-		derMCP(f, x, n, lambda, theta);
+		derMCP(f, x, n, lambda, theta, eps);
 		break;
 	default:
-		derCapL1(f, x, n, lambda, theta);
+		derCapL1(f, x, n, lambda, theta, eps);
 	}
 }
 
