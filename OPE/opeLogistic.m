@@ -84,6 +84,7 @@ regtype = 1;
 w0 = zeros(d,1);
 maxiter = 1000;
 a = 2;
+eps = 1e-6;
 
 % Optional parameter settings
 parameterCount = length(varargin)/2;
@@ -103,11 +104,14 @@ for parameterIndex = 1:parameterCount,
             maxiter = parameterValue;
         case 'bound'
             a = parameterValue;
+        case 'eps'
+            eps = parameterValue;
+
         otherwise
             error(['The parameter ''' parameterName ''' is not recognized by the function ''' mfilename '''!']);
     end
 end
-fprintf('OPE Logistic paras : a = %f, maxiter : %d\n', a, maxiter);
+fprintf('OPE Logistic paras : a = %f, maxiter : %d, eps = %f\n', a, maxiter, eps);
 w = w0; 
 fun = zeros(maxiter+1,1);
 time = fun;

@@ -5,13 +5,13 @@ double min(double x, double y){
     return x < y ? x : y; 
 }
 
-void elementCapL1(double x_i, double lambda, double theta){
-	return lambda*min(fabs(x_i, theta));
+double elementCapL1(double x_i, double lambda, double theta){
+	return lambda*min(fabs(x_i), theta);
 }
-void elementLSP(double x_i, double lambda, double theta){
+double elementLSP(double x_i, double lambda, double theta){
 	return lambda*log(1.0 + fabs(x_i)/theta);
 }
-void elementSCAD(double x_i, double lambda, double theta){
+double elementSCAD(double x_i, double lambda, double theta){
 	double u,v,y,z,w;
 	y = theta*lambda;
 	w = lambda*lambda;
@@ -31,12 +31,12 @@ void elementSCAD(double x_i, double lambda, double theta){
 	return value;
 }
 
-void elementMCP(double x_i, double lambda, double theta) {
+double elementMCP(double x_i, double lambda, double theta) {
 	double v,y;
 	y = theta*lambda;
 
 	double value = 0.0;
-	v = fabs(x[i]);
+	v = fabs(x_i);
 	if (v <= y) {
 		value = v*(lambda - 0.5*v/theta);
 	}
