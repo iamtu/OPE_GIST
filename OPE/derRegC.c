@@ -100,7 +100,7 @@ void derSCAD(double *f, double *x, long n, double lambda, double theta, double e
 		} else if(x[i] == -lambda){
 			f[i] = (elementSCAD(-lambda+eps, lambda, theta) - elementSCAD(-lambda-eps, lambda, theta)) / (2*eps);
 		} else if(x[i] < -lambda && x[i] > -u) {
-			f[i] = (-x[i] -u) /(theta - 1); 
+			f[i] = (-x[i] -u) / (theta - 1); 
 		} else if(x[i] == -u) {
 			f[i] = (elementSCAD(-u+eps, lambda, theta) - elementSCAD(-u-eps, lambda, theta)) / (2*eps);
 		} else {
@@ -155,7 +155,6 @@ void mexFunction (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     plhs[0] = mxCreateDoubleMatrix(n,1,mxREAL);
     
     f=mxGetPr(plhs[0]);
-
 	switch (type) {
 	case 1:
 		derCapL1(f, x, n, lambda, theta, eps);

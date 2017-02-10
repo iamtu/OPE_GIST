@@ -82,7 +82,7 @@ regtype = 1;
 w0 = zeros(d,1);
 maxiter = 100;
 a = 1;
-eps = 1e-6;
+epsilon = 1e-6;
 % Optional parameter settings
 parameterCount = length(varargin)/2;
 
@@ -101,14 +101,14 @@ for parameterIndex = 1:parameterCount,
             a = parameterValue;
         case 'maxiteration'
             maxiter = parameterValue;
-        case 'eps'
-            eps = parameterValue;
+        case 'epsilon'
+            epsilon = parameterValue;
         otherwise
             error(['The parameter ''' parameterName ''' is not recognized by the function ''' mfilename '''!']);
     end
 end
 
-fprintf('OPE params : a = %f, maxiter = %d, eps = %f\n',a, maxiter, eps);
+fprintf('OPE params : a = %f, maxiter = %d, epsilon = %f\n',a, maxiter, epsilon);
 
 w = w0; 
 fun = zeros(maxiter+1,1); 
@@ -139,7 +139,7 @@ for iter = 1:maxiter
     Zw = -Z*w_old; 
     hinge = max(0,1+Zw);
     grad =  -Z'*hinge/n;
-    dF = L(1) * grad + L(2) * derRegC(w_old,d,lambda,theta, regtype);
+    dF = L(1) * grad + L(2) * derRegC(w_old, d, lambda, theta, epsilon, regtype);
 
 
     % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a

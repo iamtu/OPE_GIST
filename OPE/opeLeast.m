@@ -55,7 +55,7 @@ function [w,fun,time,iter,fun_min] = opeLeast(X,y,lambda,theta,varargin)
 w0 = zeros(d,1);
 maxiter = 100;
 a = 1;
-eps = 1e-6;
+epsilon = 1e-6;
 
 % Optional parameter settings
 parameterCount = length(varargin)/2;
@@ -75,14 +75,14 @@ for parameterIndex = 1:parameterCount,
             maxiter = parameterValue;
         case 'bound'
         	a = parameterValue;
-        case 'eps'
-            eps = parameterValue;
+        case 'epsilon'
+            epsilon = parameterValue;
         otherwise
             error(['The parameter ''' parameterName ''' is not recognized by the function ''' mfilename '''!']);
     end
 end
 
-fprintf('OPE params : regtype = %d, maxiter = %d, bound = %f, eps = %f\n', regtype, maxiter, a, eps);
+fprintf('OPE params : regtype = %d, maxiter = %d, bound = %f, epsilon = %f\n', regtype, maxiter, a, epsilon);
 
 s_t = zeros(d,1);
 w = w0; 
@@ -105,7 +105,7 @@ for iter = 1:maxiter
     
     % Tinh F'(w)
 
-    dF = L(1) * (X'*(X*w_old - y))/n + L(2) * derRegC(w_old,d,lambda,theta, regtype);
+    dF = L(1) * (X'*(X*w_old - y))/n + L(2) * derRegC(w_old,d,lambda,theta, epsilon,regtype);
 
 
     % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a

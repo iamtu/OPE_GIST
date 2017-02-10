@@ -84,7 +84,7 @@ regtype = 1;
 w0 = zeros(d,1);
 maxiter = 1000;
 a = 2;
-eps = 1e-6;
+epsilon = 1e-6;
 
 % Optional parameter settings
 parameterCount = length(varargin)/2;
@@ -104,14 +104,14 @@ for parameterIndex = 1:parameterCount,
             maxiter = parameterValue;
         case 'bound'
             a = parameterValue;
-        case 'eps'
-            eps = parameterValue;
+        case 'epsilon'
+            epsilon = parameterValue;
 
         otherwise
             error(['The parameter ''' parameterName ''' is not recognized by the function ''' mfilename '''!']);
     end
 end
-fprintf('OPE Logistic paras : a = %f, maxiter : %d, eps = %f\n', a, maxiter, eps);
+fprintf('OPE Logistic paras : a = %f, maxiter : %d, epsilon = %f\n', a, maxiter, epsilon);
 w = w0; 
 fun = zeros(maxiter+1,1);
 time = fun;
@@ -156,7 +156,7 @@ for iter = 1:maxiter
     grad =  -Z'*temp/n;
 
     
-    dF = L(1) * grad + L(2) * derRegC(w_old,d,lambda,theta, regtype);
+    dF = L(1) * grad + L(2) * derRegC(w_old, d, lambda, theta, epsilon,regtype);
     
     % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a
     [min_value, min_index] = min(dF);
@@ -170,7 +170,7 @@ for iter = 1:maxiter
     end
     
     % update w
-    alpha = 1.0 / iter;
+    alpha = 1.0 / (iter + 1);
     w = w_old * (1.0 - alpha) + (s_t - w_old) * alpha;
 
     % calculate fun(iter+1)
@@ -185,6 +185,4 @@ for iter = 1:maxiter
     end
 
     time(iter+1) = time(iter) + toc; 
-
-
 end
