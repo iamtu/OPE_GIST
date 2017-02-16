@@ -120,6 +120,8 @@ logist = zeros(n,1);
 
 % Initial function value
 Z = sparse(1:n,1:n,y,n,n)*X;
+
+% todo - figure out how to calculate grad & fun
 Zw = -Z*w; 
 posind = (Zw > 0);
 logist(posind) = 1 + exp(-Zw(posind));
@@ -155,23 +157,13 @@ for iter = 1:maxiter
     temp(~posind) = (logist(~posind)-1)./logist(~posind);
     grad =  -Z'*temp/n;
 
+    dF = L(1)*grad + L(2)*derRegC(w_old, d, lambda, theta, epsilon, regtype);
     
-    dF = L(1) * grad + L(2) * derRegC(w_old, d, lambda, theta, epsilon,regtype);
-    
-    % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a
-    [min_value, min_index] = min(dF);
-    if min_value < 0
-        s_t = zeros(d,1);
-        s_t(min_index) = a;
-    else
-        [max_value,max_index] = max(dF);
-        s_t = zeros(d,1);
-        s_t(max_index) = -a;
-    end
+    s_t = findDirection(dF, d, a);
     
     % update w
-    alpha = 1.0 / (iter + 1);
-    w = w_old * (1.0 - alpha) + (s_t - w_old) * alpha;
+    alpha = 2 / (iter + 2);
+    w = w_old + (s_t - w_old)*alpha;
 
     % calculate fun(iter+1)
     Zw = -Z*w; 

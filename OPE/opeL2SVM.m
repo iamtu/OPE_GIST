@@ -170,8 +170,8 @@ for iter = 1:maxiter
     % s_t (dF > 0) = -a;
 
     % update w
-    alpha = 1.0 / iter;
-    w = w_old * (1-alpha) + (s_t - w_old) * alpha;
+    alpha = 2 / (iter+2);
+    w = w_old + (s_t - w_old) * alpha;
     
     %calculate fun(iter+1)
     Zw = -Z*w;

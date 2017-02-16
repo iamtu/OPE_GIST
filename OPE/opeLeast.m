@@ -119,8 +119,9 @@ for iter = 1:maxiter
     	s_t(max_index) = -a;
      end
 
-    alpha = 1.0/(iter+1);
-    w = w_old *(1-alpha) + (s_t - w_old) * alpha;
+    alpha = 2/(iter + 2);
+    w = w_old + (s_t - w_old) * alpha;
+    
     fun(iter+1) = 0.5*norm(X*w - y)^2/n + funRegC(w,d,lambda,theta,regtype);
 
     time(iter+1) = time(iter) + toc;
