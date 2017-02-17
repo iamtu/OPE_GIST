@@ -106,21 +106,12 @@ for iter = 1:maxiter
     % Tinh F'(w)
 
     dF = L(1) * (X'*(X*w_old - y))/n + L(2) * derRegC(w_old,d,lambda,theta, epsilon,regtype);
-
-
-    % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a
-    [min_value, min_index] = min(dF);
-    if min_value < 0
-    	s_t = zeros(d,1);
-    	s_t(min_index) = a;
-    else
-        [max_value,max_index] = max(dF);
-    	s_t = zeros(d,1);
-    	s_t(max_index) = -a;
-     end
+    
+    s_t = findDirection(dF, d, a);
 
     alpha = 2/(iter + 2);
     w = w_old + (s_t - w_old) * alpha;
+    
     
     fun(iter+1) = 0.5*norm(X*w - y)^2/n + funRegC(w,d,lambda,theta,regtype);
 

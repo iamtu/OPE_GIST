@@ -1,6 +1,8 @@
 function [s] = findDirection(dF, d, bound)
 
 % Tinh s = argmin<dF,x> : sum_i |x_i|  <= bound voi i = 1...d
+% Tinh s = argmax<dF,x> : sum_i |x_i|  <= bound voi i = 1...d
+
 s = zeros(d,1);
 [min_value, min_index] = min(dF);
 if min_value < 0

@@ -142,34 +142,8 @@ for iter = 1:maxiter
     dF = L(1) * grad + L(2) * derRegC(w_old, d, lambda, theta, epsilon, regtype);
 
 
-    % Tinh s_t = argmin<F'(w_old),x> : sum_i |x_i|  <= a
-    [min_value, min_index] = min(dF);
-    if min_value < 0
-        s_t = zeros(d,1);
-        s_t(min_index) = a;
-    else
-        [max_value,max_index] = max(dF);
-        s_t = zeros(d,1);
-        s_t(max_index) = -a;
-    end
+    s_t = findDirection(dF, d, a);
 
-
-    % Tinh s_t = argmax<F'(w_old),x> : sum_i |x_i|  <= a
-    % [max_value, max_index] = max(dF);
-    % if max_value > 0
-    %     s_t = zeros(d,1);
-    %     s_t(max_index) = a;
-    % else
-    %     [min_value,min_index] = min(dF);
-    %     s_t = zeros(d,1);
-    %     s_t(min_index) = -a;
-    % end
-
-    % s_t = zeros(d,1);
-    % s_t (dF < 0) = a;
-    % s_t (dF > 0) = -a;
-
-    % update w
     alpha = 2 / (iter+2);
     w = w_old + (s_t - w_old) * alpha;
     

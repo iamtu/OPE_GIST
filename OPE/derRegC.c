@@ -45,16 +45,12 @@ void derCapL1(double *f, double *x, long n, double lambda, double theta, double 
     long i;
     double rand_value = 0;
 	for(i=0;i<n;i++) {
-		if(x[i] == theta){
-			f[i] = (elementCapL1(theta+eps,lambda, theta) - elementCapL1(theta-eps, lambda, theta)) / (2*eps);
+		if(x[i] == theta || x[i] == 0 || x[i] == -theta){
+			f[i] = (elementCapL1(x[i]+eps,lambda, theta) - elementCapL1(x[i]-eps, lambda, theta)) / (2*eps);
 		} else if(x[i] > 0 && x[i] < theta){
 			f[i] = lambda;
-		} else if(x[i] == 0){
-			f[i] = (elementCapL1(eps, lambda, theta) - elementCapL1(-eps, lambda, theta)) / (2*eps);
 		} else if(x[i] < 0 && x[i] > -theta){
 			f[i] = -lambda;
-		} else if(x[i] == -theta){
-			f[i] = (elementCapL1(-theta+eps, lambda, theta) - elementCapL1(-theta-eps, lambda, theta)) / (2*eps);
 		} else {
 			f[i] = 0;
 		}
@@ -70,7 +66,7 @@ void derLSP(double *f, double *x, long n, double lambda, double theta, double ep
 		if(x[i] > 0){
 			f[i] = lambda * (x[i] + theta);
 		} else if(x[i] == 0) {
-			f[i] = (elementLSP(eps, lambda, theta) - elementLSP(-eps, lambda, theta)) / (2*eps);
+			f[i] = (elementLSP(x[i]+eps, lambda, theta) - elementLSP(x[i]-eps, lambda, theta)) / (2*eps);
 		} else {
 			f[i] = -lambda * (x[i] + theta);
 		}
@@ -83,26 +79,19 @@ void derSCAD(double *f, double *x, long n, double lambda, double theta, double e
     long i;
 	double u = theta*lambda;
 	double rand_value;
+
 	for(i=0;i<n;i++) { 
-		if(x[i] == u){
-			f[i] = (elementSCAD(u+eps, lambda, theta) - elementSCAD(u-eps, lambda, theta)) / (2*eps);
+		if(x[i] == u || x[i] == lambda || x[i] == 0 || x[i] == -lambda || x[i] == -u){
+			f[i] = (elementSCAD(x[i]+eps, lambda, theta) - elementSCAD(x[i]-eps, lambda, theta)) / (2*eps);
 		} else if(x[i] < u && x[i] > lambda) {
 			f[i] = (-x[i] + u) / (theta - 1);
-		} else if(x[i] == lambda) {
-			f[i] = (elementSCAD(lambda+eps, lambda, theta) - elementSCAD(lambda-eps, lambda, theta)) / (2*eps);
 		} else if(x[i] < lambda && x[i] > 0){
 			f[i] = lambda;
-		} else if(x[i] == 0){
-			f[i] = (elementSCAD(eps, lambda, theta) - elementSCAD(-eps, lambda, theta)) / (2*eps);
 		}
 		else if(x[i] < 0 && x[i] > -lambda){
 			f[i] = -lambda;
-		} else if(x[i] == -lambda){
-			f[i] = (elementSCAD(-lambda+eps, lambda, theta) - elementSCAD(-lambda-eps, lambda, theta)) / (2*eps);
 		} else if(x[i] < -lambda && x[i] > -u) {
 			f[i] = (-x[i] -u) / (theta - 1); 
-		} else if(x[i] == -u) {
-			f[i] = (elementSCAD(-u+eps, lambda, theta) - elementSCAD(-u-eps, lambda, theta)) / (2*eps);
 		} else {
 			f[i] = 0;
 		}
@@ -118,25 +107,18 @@ void derMCP(double *f, double *x, long n, double lambda, double theta, double ep
     double rand_value = 0;
 
     for(i=0;i<n;i++) { 
-    	if(x[i] == u){
-    		f[i] = (elementMCP(u+eps, lambda, theta) - elementMCP(u-eps, lambda, theta))/ (2*eps);
+    	if(x[i] == u || x[i] == 0 || x[i] == -u){
+    		f[i] = (elementMCP(x[i]+eps, lambda, theta) - elementMCP(x[i]-eps, lambda, theta))/ (2*eps);
     	} else if(x[i] < u && x[i] > 0){
     		f[i] = lambda - x[i]/theta;
-    	} else if(x[i] == 0){
-    		f[i] = (elementMCP(eps, lambda, theta) - elementMCP(-eps, lambda, theta))/ (2*eps);
     	} else if(x[i] < 0 && x[i] > -u){
     		f[i] = -lambda - x[i]/theta;
-    	} else if(x[i] == -u){
-    		f[i] = (elementMCP(-u+eps, lambda, theta) - elementMCP(-u-eps, lambda, theta))/ (2*eps);
     	} else{
     		f[i] = 0;
     	}
 	}
 	return;
 }
-
-
-
 
 void mexFunction (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
