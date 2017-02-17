@@ -109,8 +109,8 @@ for iter = 1:maxiter
     
     s_t = findDirection(dF, d, a);
 
-    alpha = 2/(iter + 2);
-    w = w_old + (s_t - w_old) * alpha;
+    alpha_ = 2/(iter + 2);
+    w = w_old + (s_t - w_old) * alpha_;
     
     
     fun(iter+1) = 0.5*norm(X*w - y)^2/n + funRegC(w,d,lambda,theta,regtype);

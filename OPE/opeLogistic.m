@@ -162,8 +162,8 @@ for iter = 1:maxiter
     s_t = findDirection(dF, d, a);
     
     % update w
-    alpha = 2 / (iter + 2);
-    w = w_old + (s_t - w_old)*alpha;
+    alpha_ = 2 / (iter + 2);
+    w = w_old + (s_t - w_old)*alpha_;
 
     % calculate fun(iter+1)
     Zw = -Z*w; 

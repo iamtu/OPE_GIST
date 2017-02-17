@@ -32,8 +32,8 @@ clear Data
 % theta = 0.1 * lambda;
 % optional parameter settings
 
-regtype = 1; % nonconvex regularization type (default: 1 [capped L1]) 
-lambda = 1e-1;
+regtype = 2; % nonconvex regularization type (default: 1 [capped L1]) 
+lambda = 1e-6;
 theta = 1e-1*lambda;
 
 
@@ -50,6 +50,8 @@ fprintf('Lambda = %f, theta = %f \n', lambda, theta);
 fprintf('reg type = %d \n\n', regtype);
 
 w0 = zeros(d,1) ; % starting point (default: zero vector)
+rand_index = randi([1 d],1);
+w0(rand_index) = 1e2;
 
 stopcriterion = 1; % stopping criterion (default: 1)
 
@@ -115,7 +117,7 @@ hold on;
       'regtype',regtype, ...
       'startingpoint',w0, ...
       'maxiteration',100, ...
-      'bound',1e1, ...
+      'bound',1e2, ...
       'epsilon', 1e-10...
 );
 
@@ -136,4 +138,4 @@ semilogy(fun1(1:iter1+1),'b-','LineWidth', 2)
 xlabel('Iteration');
 ylabel('Objective function value (log scaled)');
 legend('OPE-Logistic')
-% % legend({['GIST-L2SVM'],'OPE-L2SVM'});
+% legend({['GIST-L2SVM'],'OPE-L2SVM'});

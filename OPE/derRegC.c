@@ -43,10 +43,12 @@
 void derCapL1(double *f, double *x, long n, double lambda, double theta, double eps)
 {
     long i;
-    double rand_value = 0;
+    double delta = 0;
 	for(i=0;i<n;i++) {
+		if()
 		if(x[i] == theta || x[i] == 0 || x[i] == -theta){
-			f[i] = (elementCapL1(x[i]+eps,lambda, theta) - elementCapL1(x[i]-eps, lambda, theta)) / (2*eps);
+			delta = elementCapL1(x[i]+eps,lambda,theta) - elementCapL1(x[i]-2*eps,lambda,theta);
+			f[i] = delta / (3*eps);
 		} else if(x[i] > 0 && x[i] < theta){
 			f[i] = lambda;
 		} else if(x[i] < 0 && x[i] > -theta){
@@ -61,12 +63,13 @@ void derCapL1(double *f, double *x, long n, double lambda, double theta, double 
 void derLSP(double *f, double *x, long n, double lambda, double theta, double eps)
 {
     long i;
-    double rand_value = 0;
+    double delta = 0;
 	for(i=0;i<n;i++) { 
 		if(x[i] > 0){
 			f[i] = lambda * (x[i] + theta);
 		} else if(x[i] == 0) {
-			f[i] = (elementLSP(x[i]+eps, lambda, theta) - elementLSP(x[i]-eps, lambda, theta)) / (2*eps);
+			delta = elementLSP(x[i]+eps,lambda,theta) - elementLSP(x[i]-eps,lambda,theta);
+			f[i] = delta / (2*eps);
 		} else {
 			f[i] = -lambda * (x[i] + theta);
 		}
@@ -78,11 +81,12 @@ void derSCAD(double *f, double *x, long n, double lambda, double theta, double e
 {
     long i;
 	double u = theta*lambda;
-	double rand_value;
+	double delta;
 
 	for(i=0;i<n;i++) { 
 		if(x[i] == u || x[i] == lambda || x[i] == 0 || x[i] == -lambda || x[i] == -u){
-			f[i] = (elementSCAD(x[i]+eps, lambda, theta) - elementSCAD(x[i]-eps, lambda, theta)) / (2*eps);
+			delta = elementSCAD(x[i]+eps,lambda, theta) - elementSCAD(x[i]-eps, lambda, theta);
+			f[i] = delta / (2*eps);
 		} else if(x[i] < u && x[i] > lambda) {
 			f[i] = (-x[i] + u) / (theta - 1);
 		} else if(x[i] < lambda && x[i] > 0){
@@ -104,11 +108,12 @@ void derMCP(double *f, double *x, long n, double lambda, double theta, double ep
 {
     long i;
 	double u = theta*lambda;
-    double rand_value = 0;
+    double delta = 0;
 
     for(i=0;i<n;i++) { 
     	if(x[i] == u || x[i] == 0 || x[i] == -u){
-    		f[i] = (elementMCP(x[i]+eps, lambda, theta) - elementMCP(x[i]-eps, lambda, theta))/ (2*eps);
+    		delta = elementMCP(x[i]+eps, lambda, theta) - elementMCP(x[i]-eps, lambda, theta);
+    		f[i] = delta / (2*eps);
     	} else if(x[i] < u && x[i] > 0){
     		f[i] = lambda - x[i]/theta;
     	} else if(x[i] < 0 && x[i] > -u){
