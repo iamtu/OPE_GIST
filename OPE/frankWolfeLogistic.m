@@ -1,4 +1,4 @@
-function [w,fun,time,iter,fun_min] = opeLogistic(X,y,lambda,theta,varargin)
+function [w,fun,time,iter,fun_min] = frankWolfeLogistic(X,y,lambda,theta,varargin)
 % OPE to solve Logsitic Regression loss
 %
 % Non-convex optimization problem:
@@ -105,6 +105,18 @@ for parameterIndex = 1:parameterCount,
             a = parameterValue;
         case 'epsilon'
             epsilon = parameterValue;
+        case 'tinitialization'
+            t = parameterValue;
+        case 'tmin'
+            tmin = parameterValue;
+        case 'tmax'
+            tmax =  parameterValue;
+        case 'sigma'
+            sigma =  parameterValue;
+        case 'eta'
+            eta = parameterValue;
+        case 'nonmonotone'
+            M = parameterValue;
 
         otherwise
             error(['The parameter ''' parameterName ''' is not recognized by the function ''' mfilename '''!']);
@@ -135,43 +147,30 @@ fun(1) = ( sum(log(logist(~posind))) + sum( Zw(posind)+log(logist(posind)) ) )/n
     + funRegC(w,d,lambda,theta,regtype);  % correct ok
 fun_min = fun(1);
 time(1) = 0;
-L = [1,1];
 
 for iter = 1:maxiter
     tic;
     
     w_old = w;
-
-    % chon ngau nhien g1, g2
-    randIndex = randi([1,2],1);
-    L(randIndex) = L(randIndex) + 1;
     
-    % Tinh F'(w)
-    Zw = -Z*w_old; 
-    posind = (Zw > 0);
-    logist(posind) = 1 + exp(-Zw(posind));
-    logist(~posind) = 1 + exp(Zw(~posind));
-
-    temp = logist;
-    temp(posind) = 1./logist(posind);
-    temp(~posind) = (logist(~posind)-1)./logist(~posind);
-    grad =  -Z'*temp/n;
-
-    dF = L(1)*grad + L(2) * derRegC(w_old, d, lambda, theta, epsilon, regtype);
+    grad_old = grad;
     
-    s_t = findDirection(dF, d, a);
-    
-    % update w
-    alpha_ = 2 / (iter + 2);
-    w = w_old + (s_t - w_old)*alpha_;
-
-    % calculate fun(iter+1)
-    Zw = -Z*w; 
-    posind = (Zw > 0);
-    logist(posind) = 1 + exp(-Zw(posind));
-    logist(~posind) = 1 + exp(Zw(~posind));
-    fun(iter+1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n ...
-        + funRegC(w,d,lambda,theta,regtype);  
+    t = min(max(t,tmin),tmax);
+    for inneriter = 1:20
+        w = proximalRegC(w_old - grad_old/t, d, lambda/t, theta, regtype);
+        dw = w - w_old;
+        Zw = -Z*w; 
+        posind = (Zw > 0);
+        logist(posind) = 1 + exp(-Zw(posind));
+        logist(~posind) = 1 + exp(Zw(~posind));
+        fun(iter+1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n ...
+                + funRegC(w,d,lambda,theta,regtype);  
+        if fun(iter+1) <= max(fun(max(iter-M+1,1): iter)) - 0.5*sigma*t*norm(dw)^2
+            break;
+        else
+            t = t*eta;
+        end
+    end
     
     if(fun(iter+1) < fun_min)
         fun_min = fun(iter+1);

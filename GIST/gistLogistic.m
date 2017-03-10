@@ -193,7 +193,8 @@ temp(posind) = 1./logist(posind);
 temp(~posind) = (logist(~posind)-1)./logist(~posind);
 grad =  -Z'*temp/n;
 
-fun(1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n + funRegC(w,d,lambda,theta,regtype);
+fun(1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n ...
+    + funRegC(w,d,lambda,theta,regtype);
 fun_min = fun(1);
 time(1) = 0;
 
@@ -209,10 +210,12 @@ for iter = 1:maxiter
     for inneriter = 1:maxinneriter
         w = proximalRegC(w_old - grad_old/t, d, lambda/t, theta,regtype);
         dw = w - w_old;
-        Zw = -Z*w; posind = (Zw > 0);
+        Zw = -Z*w; 
+        posind = (Zw > 0);
         logist(posind) = 1 + exp(-Zw(posind));
         logist(~posind) = 1 + exp(Zw(~posind));
-        fun(iter+1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n + funRegC(w,d,lambda,theta,regtype);  
+        fun(iter+1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n ...
+                + funRegC(w,d,lambda,theta,regtype);  
         if fun(iter+1) <= max(fun(max(iter-M+1,1): iter)) - 0.5*sigma*t*norm(dw)^2
             break;
         else

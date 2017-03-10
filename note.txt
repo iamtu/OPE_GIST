@@ -10,8 +10,8 @@
 
 20/1/2017
 
- - cai dat lai buoc tim R'
- - paper : 
+- cai dat lai buoc tim R'
+- paper : 
  	1. more evaluation on. performance, explaination.
  		other perspective
 			stability :  more randomness ??
@@ -21,3 +21,10 @@
 			time requirement
 			give example for some datasets
 
+17/2/2017
+- OPE not find sparse root ???
+
+3/3/2017
+
+- implement f'(x) = max(f'(x+epsilon), f'(x-epsilon))
+- note about f(x+epsilon) : x+epsilon may be jump to other domain

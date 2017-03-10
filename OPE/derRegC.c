@@ -39,22 +39,27 @@
  default: type = 1
 
 */
+double max(double a, double b){
+	return a > b ? a : b;
+}
 
 void derCapL1(double *f, double *x, long n, double lambda, double theta, double eps)
 {
-    long i;
-    double delta = 0;
+	long i;
+  double rand_value = 0;
 	for(i=0;i<n;i++) {
-		if()
-		if(x[i] == theta || x[i] == 0 || x[i] == -theta){
-			delta = elementCapL1(x[i]+eps,lambda,theta) - elementCapL1(x[i]-2*eps,lambda,theta);
-			f[i] = delta / (3*eps);
+		if(x[i] == theta){
+			f[i] = max(lambda, 0);
 		} else if(x[i] > 0 && x[i] < theta){
 			f[i] = lambda;
+		} else if(x[i] == 0){
+			f[i] = max(lambda, -lambda);
 		} else if(x[i] < 0 && x[i] > -theta){
 			f[i] = -lambda;
+		} else if(x[i] == -theta){
+			f[i] = max(-lambda,0);
 		} else {
-			f[i] = 0;
+			f[i] = eps;
 		}
 	}
 	return;
@@ -68,8 +73,7 @@ void derLSP(double *f, double *x, long n, double lambda, double theta, double ep
 		if(x[i] > 0){
 			f[i] = lambda * (x[i] + theta);
 		} else if(x[i] == 0) {
-			delta = elementLSP(x[i]+eps,lambda,theta) - elementLSP(x[i]-eps,lambda,theta);
-			f[i] = delta / (2*eps);
+			f[i] = max(lambda*(x[i]+theta), -lambda*(x[i]+theta));
 		} else {
 			f[i] = -lambda * (x[i] + theta);
 		}
@@ -79,69 +83,78 @@ void derLSP(double *f, double *x, long n, double lambda, double theta, double ep
 
 void derSCAD(double *f, double *x, long n, double lambda, double theta, double eps)
 {
-    long i;
+  long i;
 	double u = theta*lambda;
 	double delta;
 
-	for(i=0;i<n;i++) { 
-		if(x[i] == u || x[i] == lambda || x[i] == 0 || x[i] == -lambda || x[i] == -u){
-			delta = elementSCAD(x[i]+eps,lambda, theta) - elementSCAD(x[i]-eps, lambda, theta);
-			f[i] = delta / (2*eps);
-		} else if(x[i] < u && x[i] > lambda) {
-			f[i] = (-x[i] + u) / (theta - 1);
+	for(i=0;i<n;i++) {
+		if(x[i] == u){
+			f[i] = max(0, (-x[i]+u)/(theta-1));
+		} else if(x[i] < u && x[i] > lambda){
+			f[i] = (-x[i]+u)/(theta-1);
+		} else if(x[i] == lambda){
+			f[i] = max((-x[i]+u)/(theta-1), lambda);
 		} else if(x[i] < lambda && x[i] > 0){
 			f[i] = lambda;
-		}
-		else if(x[i] < 0 && x[i] > -lambda){
+		} else if(x[i] == 0){
+			f[i] = max(lambda, -lambda);
+		} else if(x[i] < 0 && x[i] > -lambda){
 			f[i] = -lambda;
+		} else if(x[i] == -lambda){
+			f[i] = max(-lambda, (-x[i]-u)/(theta-1));
 		} else if(x[i] < -lambda && x[i] > -u) {
-			f[i] = (-x[i] -u) / (theta - 1); 
-		} else {
+			f[i] = (-x[i]-u)/(theta-1); 
+		} else if(x[i] == -u){
+			f[i] = max((-x[i]-u)/(theta-1), 0);
+		} else{
 			f[i] = 0;
 		}
-	}	
-	
+	}
 	return;
 }
 
 void derMCP(double *f, double *x, long n, double lambda, double theta, double eps)
 {
-    long i;
+	long i;
 	double u = theta*lambda;
-    double delta = 0;
+  double delta = 0;
 
-    for(i=0;i<n;i++) { 
-    	if(x[i] == u || x[i] == 0 || x[i] == -u){
-    		delta = elementMCP(x[i]+eps, lambda, theta) - elementMCP(x[i]-eps, lambda, theta);
-    		f[i] = delta / (2*eps);
-    	} else if(x[i] < u && x[i] > 0){
-    		f[i] = lambda - x[i]/theta;
-    	} else if(x[i] < 0 && x[i] > -u){
-    		f[i] = -lambda - x[i]/theta;
-    	} else{
-    		f[i] = 0;
-    	}
+  for(i=0;i<n;i++) { 
+  	if(x[i] == u){
+  		f[i] = max(0, lambda - x[i]/theta);
+  	} else if(x[i] < u && x[i] > 0){
+  		f[i] = lambda - x[i]/theta;
+  	} else if(x[i] == 0){
+  		f[i] = max(lambda - x[i]/theta, -lambda - x[i]/theta);
+  	} else if(x[i] < 0 && x[i] > -u){
+  		f[i] = -lambda - x[i]/theta;
+  	} else if(x[i] == -u){
+  		f[i] = max(-lambda - x[i]/theta, 0);
+  	} else{
+  		f[i] = 0;
+  	}
 	}
 	return;
 }
 
 void mexFunction (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
-    /*set up input arguments */
-    double* x       =            mxGetPr(prhs[0]);
-    long     n      =      (long)mxGetScalar(prhs[1]);
-    double  lambda  =            mxGetScalar(prhs[2]);
+  /*set up input arguments */
+  double* x       =            mxGetPr(prhs[0]);
+  long     n      =      (long)mxGetScalar(prhs[1]);
+  double  lambda  =            mxGetScalar(prhs[2]);
 	double  theta   =            mxGetScalar(prhs[3]);
 	double  eps 	= 			 mxGetScalar(prhs[4]);
 	int     type    =       (int)mxGetScalar(prhs[5]);
     
-    double *f;
+  double *f;
 
 
-    /* set up output arguments */
-    plhs[0] = mxCreateDoubleMatrix(n,1,mxREAL);
-    
-    f=mxGetPr(plhs[0]);
+  /* set up output arguments */
+  plhs[0] = mxCreateDoubleMatrix(n,1,mxREAL);
+  
+  f=mxGetPr(plhs[0]);
+	
 	switch (type) {
 	case 1:
 		derCapL1(f, x, n, lambda, theta, eps);

@@ -29,20 +29,6 @@
            r_i(x) = 0.5*theta*lambda^2, if |x_i| > theta*lambda, (theta > 0, lambda >= 0)
 
  default: type = 1
-
--------------------------- Function proximalRegC -----------------------------
-
--------------------------- Reference -----------------------------------------
-
-[1] Pinghua Gong, Changshui Zhang, Zhaosong Lu, Jianhua Huang, Jieping Ye,
-    A General Iterative Shrinkage and Thresholding Algorithm for Non-convex
-    Regularized Optimization Problems. ICML 2013.
-
------------------------------------------------------------------------------
-
-   Copyright (C) 2012-2013 Pinghua Gong
-
-   For any problem, please contact Pinghua Gong via pinghuag@gmail.com
 */
 
 long mymin(double *x, long n)
