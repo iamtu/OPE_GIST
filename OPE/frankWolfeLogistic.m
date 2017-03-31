@@ -152,25 +152,33 @@ for iter = 1:maxiter
     tic;
     
     w_old = w;
+
+    % Tinh F'(w)
+    Zw = -Z*w_old; 
+    posind = (Zw > 0);
+    logist(posind) = 1 + exp(-Zw(posind));
+    logist(~posind) = 1 + exp(Zw(~posind));
+
+    temp = logist;
+    temp(posind) = 1./logist(posind);
+    temp(~posind) = (logist(~posind)-1)./logist(~posind);
+    grad =  -Z'*temp/n;
+
+    dF = grad + derRegC(w_old, d, lambda, theta, epsilon, regtype);
     
-    grad_old = grad;
+    s_t = findDirection(dF, d, a);
     
-    t = min(max(t,tmin),tmax);
-    for inneriter = 1:20
-        w = proximalRegC(w_old - grad_old/t, d, lambda/t, theta, regtype);
-        dw = w - w_old;
-        Zw = -Z*w; 
-        posind = (Zw > 0);
-        logist(posind) = 1 + exp(-Zw(posind));
-        logist(~posind) = 1 + exp(Zw(~posind));
-        fun(iter+1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n ...
-                + funRegC(w,d,lambda,theta,regtype);  
-        if fun(iter+1) <= max(fun(max(iter-M+1,1): iter)) - 0.5*sigma*t*norm(dw)^2
-            break;
-        else
-            t = t*eta;
-        end
-    end
+    % update w
+    alpha_ = 2 / (iter + 2);
+    w = w_old + (s_t - w_old)*alpha_;
+
+    % calculate fun(iter+1)
+    Zw = -Z*w; 
+    posind = (Zw > 0);
+    logist(posind) = 1 + exp(-Zw(posind));
+    logist(~posind) = 1 + exp(Zw(~posind));
+    fun(iter+1) = (sum(log(logist(~posind))) + sum(Zw(posind) + log(logist(posind))))/n ...
+        + funRegC(w,d,lambda,theta,regtype);  
     
     if(fun(iter+1) < fun_min)
         fun_min = fun(iter+1);

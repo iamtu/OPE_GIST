@@ -1,18 +1,10 @@
-clear
-clc
-
+clear;
+clc;
+mkdir bin
+mex ./GIST/proximalRegC.c -outdir ./bin;
+mex ./GIST/funRegC.c -outdir ./bin;
+mex ./OPE/funElementReg.c -outdir ./bin;
+mex ./OPE/derRegC.c -outdir ./bin;
 
 currentpath = cd;
-
-addpath(genpath([currentpath,'/GIST']));
-addpath(genpath([currentpath,'/OPE']));
-
-cd ./GIST
-
-mex proximalRegC.c
-mex funRegC.c
-cd ../OPE
-mex funElementReg.c
-mex derRegC.c
-cd ..
-
+addpath(genpath([currentpath,'/bin']));

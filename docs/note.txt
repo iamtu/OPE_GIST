@@ -28,3 +28,8 @@
 
 - implement f'(x) = max(f'(x+epsilon), f'(x-epsilon))
 - note about f(x+epsilon) : x+epsilon may be jump to other domain
+
+13/3/2017
+- Tach g1, g2
+	Tai moi buoc chon 1 ham bat ki de dua vao F(t)
+- Kiem tra lai tai sao frank-wolfe giong OPE??
